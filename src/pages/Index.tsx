@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { FileUpload } from '../components/FileUpload';
 import { PertDiagram } from '../components/PertDiagram';
@@ -9,6 +8,7 @@ import { ProjectData, Task } from '../types/project';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Download, FileText } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const Index = () => {
   const [projectData, setProjectData] = useState<ProjectData | null>(null);
@@ -78,18 +78,15 @@ const Index = () => {
       }
     ];
     
-    // Simple CSV download for template
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + "ID,Name,Duration,Predecessors\n"
-      + templateData.map(row => `${row.ID},${row.Name},${row.Duration},"${row.Predecessors}"`).join('\n');
+    // Create Excel workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(templateData);
     
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "template_projeto.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Tarefas');
+    
+    // Generate Excel file and download
+    XLSX.writeFile(wb, 'template_projeto.xlsx');
   };
 
   return (
@@ -107,7 +104,7 @@ const Index = () => {
           <div className="flex justify-center gap-4 mt-6">
             <Button onClick={downloadTemplate} variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Baixar Template
+              Baixar Template Excel
             </Button>
             {projectData && (
               <Button onClick={handleReset} variant="outline">

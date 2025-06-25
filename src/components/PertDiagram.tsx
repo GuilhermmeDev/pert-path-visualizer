@@ -103,7 +103,7 @@ export const PertDiagram = ({ projectData }: PertDiagramProps) => {
         attributionPosition="bottom-left"
       >
         <Controls />
-        <Background variant="dots" gap={20} size={1} />
+        <Background gap={20} size={1} />
       </ReactFlow>
     </div>
   );
