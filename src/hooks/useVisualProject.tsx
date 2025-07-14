@@ -41,25 +41,6 @@ export const useVisualProject = () => {
     return hasCycle(newEdge.source!);
   }, [edges]);
 
-  const addTask = useCallback(() => {
-    const newId = `task-${nodeIdCounter}`;
-    const newNode: Node<TaskNodeData> = {
-      id: newId,
-      type: 'taskNode',
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-      data: {
-        id: newId,
-        name: `Tarefa ${nodeIdCounter}`,
-        duration: 1,
-        onUpdate: updateTask,
-        onDelete: deleteTask,
-      },
-    };
-
-    setNodes(prev => [...prev, newNode]);
-    setNodeIdCounter(prev => prev + 1);
-  }, [nodeIdCounter]);
-
   const updateTask = useCallback((id: string, data: { name: string; duration: number }) => {
     setNodes(prev => prev.map(node => 
       node.id === id 
@@ -69,9 +50,42 @@ export const useVisualProject = () => {
   }, []);
 
   const deleteTask = useCallback((id: string) => {
-    setNodes(prev => prev.filter(node => node.id !== id));
-    setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
+    console.log('Deleting task:', id); // Debug log
+    setNodes(prev => {
+      const newNodes = prev.filter(node => node.id !== id);
+      console.log('Nodes after delete:', newNodes.length); // Debug log
+      return newNodes;
+    });
+    setEdges(prev => {
+      const newEdges = prev.filter(edge => edge.source !== id && edge.target !== id);
+      console.log('Edges after delete:', newEdges.length); // Debug log
+      return newEdges;
+    });
   }, []);
+
+  const addTask = useCallback(() => {
+    const newId = `task-${nodeIdCounter}`;
+    
+    const newNode: Node<TaskNodeData> = {
+      id: newId,
+      type: 'taskNode',
+      position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
+      data: {
+        id: newId,
+        name: `Tarefa ${nodeIdCounter}`,
+        duration: 1,
+        onUpdate: (id: string, data: { name: string; duration: number }) => {
+          updateTask(id, data);
+        },
+        onDelete: (id: string) => {
+          deleteTask(id);
+        },
+      },
+    };
+
+    setNodes(prev => [...prev, newNode]);
+    setNodeIdCounter(prev => prev + 1);
+  }, [nodeIdCounter, updateTask, deleteTask]);
 
   const onConnect = useCallback((connection: Connection) => {
     if (hasCircularDependency(connection)) {
@@ -140,8 +154,12 @@ export const useVisualProject = () => {
         id: task.id,
         name: task.name,
         duration: task.duration,
-        onUpdate: updateTask,
-        onDelete: deleteTask,
+        onUpdate: (id: string, data: { name: string; duration: number }) => {
+          updateTask(id, data);
+        },
+        onDelete: (id: string) => {
+          deleteTask(id);
+        },
       },
     }));
 
@@ -170,8 +188,6 @@ export const useVisualProject = () => {
   return {
     nodes,
     edges,
-    setNodes,
-    setEdges,
     addTask,
     onConnect,
     exportToExcel,

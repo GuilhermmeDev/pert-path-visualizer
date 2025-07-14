@@ -28,8 +28,6 @@ export const DiagramEditor = ({ onImportFromExcel }: DiagramEditorProps) => {
   const {
     nodes,
     edges,
-    setNodes,
-    setEdges,
     addTask,
     onConnect,
     exportToExcel,
@@ -41,7 +39,7 @@ export const DiagramEditor = ({ onImportFromExcel }: DiagramEditorProps) => {
   const [nodesState, setNodesState, onNodesChange] = useNodesState(nodes as Node[]);
   const [edgesState, setEdgesState, onEdgesChange] = useEdgesState(edges);
 
-  // Sync with hook state
+  // Sync with hook state - only when nodes/edges change from the hook
   React.useEffect(() => {
     setNodesState(nodes as Node[]);
   }, [nodes, setNodesState]);
@@ -49,15 +47,6 @@ export const DiagramEditor = ({ onImportFromExcel }: DiagramEditorProps) => {
   React.useEffect(() => {
     setEdgesState(edges);
   }, [edges, setEdgesState]);
-
-  // Sync changes back to hook
-  React.useEffect(() => {
-    setNodes(nodesState as Node<TaskNodeData>[]);
-  }, [nodesState, setNodes]);
-
-  React.useEffect(() => {
-    setEdges(edgesState);
-  }, [edgesState, setEdges]);
 
   const onDoubleClick = useCallback((event: React.MouseEvent) => {
     // Prevent adding nodes when double-clicking on existing nodes
