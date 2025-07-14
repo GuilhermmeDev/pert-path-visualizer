@@ -55,7 +55,13 @@ const TaskNode = memo(({ data }: NodeProps) => {
               size="sm"
               variant="ghost"
               className="h-6 w-6 p-0"
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => {
+                if (isEditing) {
+                  handleSave();
+                } else {
+                  setIsEditing(true);
+                }
+              }}
             >
               {isEditing ? <Check className="h-3 w-3" /> : <Edit3 className="h-3 w-3" />}
             </Button>
